@@ -1,0 +1,51 @@
+{
+  "users": [
+    {
+      "id": "f1976b3f-5051-403b-b531-402e4649856f",
+      "email": "dev@example.com",
+      "password": "ca0f3b0312849dc154fd7af4d29c0c4c:9f355af0bd0206bff5371cbe470d6596c5cc03a049d368ac46c8fa2942c30d8298325bbb612a279bbd50c2091bf8821fdd3454adab1b6e314c8c86dc54fa75e2"
+    }
+  ],
+  "tasks": [
+    {
+      "title": "Реализовать регистрацию",
+      "description": "Добавить endpoint и сохранить пользователя в БД",
+      "dueDate": "2026-04-10T00:00:00.000Z",
+      "isCompleted": true,
+      "priority": "low",
+      "createdBy": "dev@example.com",
+      "id": "c850f425-a6f5-4944-ae81-a47c20d153a6",
+      "ownerId": "f1976b3f-5051-403b-b531-402e4649856f"
+    },
+    {
+      "title": "Сделать страницу логина",
+      "description": "Форма с email и password + обработка ошибок",
+      "dueDate": "2026-04-17T00:00:00.000Z",
+      "isCompleted": false,
+      "priority": "medium",
+      "createdBy": "dev@example.com",
+      "id": "1a146cdd-f39b-48bf-8256-4f3d4d9d0066",
+      "ownerId": "f1976b3f-5051-403b-b531-402e4649856f"
+    },
+    {
+      "title": "Добавить валидацию форм",
+      "description": "Использовать Zod для проверки полей",
+      "dueDate": "2026-04-17T00:00:00.000Z",
+      "isCompleted": false,
+      "priority": "high",
+      "createdBy": "dev@example.com",
+      "id": "00ee0953-49a7-48b2-9074-ef2ab810af70",
+      "ownerId": "f1976b3f-5051-403b-b531-402e4649856f"
+    },
+    {
+      "title": "Сделать список задач",
+      "description": "Отображение задач на странице",
+      "dueDate": "2026-04-21T00:00:00.000Z",
+      "isCompleted": false,
+      "priority": "low",
+      "createdBy": "dev@example.com",
+      "id": "0d45fcdd-642e-41b4-bcfa-079baa903b6f",
+      "ownerId": "f1976b3f-5051-403b-b531-402e4649856f"
+    }
+  ]
+}
