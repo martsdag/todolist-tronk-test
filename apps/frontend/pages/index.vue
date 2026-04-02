@@ -1,12 +1,24 @@
 <template>
   <div class="container mx-auto p-4 max-w-5xl">
-    <div class="flex items-center justify-between mb-2">
-      <h1 class="text-2xl font-bold mb-4">Мой список задач</h1>
-      <UModal v-model:open="isModalOpen" :title="isEditingMode ? 'Редактировать задачу' : 'Новая задача'">
-        <UButton icon="i-lucide-plus" @click="openCreateModal">Добавить задачу</UButton>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+      <h1 class="text-2xl font-bold">Мой список задач</h1>
+
+      <UModal
+        v-model:open="isModalOpen"
+        :title="isEditingMode ? 'Редактировать задачу' : 'Новая задача'"
+      >
+        <UButton icon="i-lucide-plus" @click="openCreateModal" class="w-full sm:w-auto">
+          Добавить задачу
+        </UButton>
+
         <template #body>
-          <UForm id="task-form" :schema="taskSchema" :state="state" @submit="handleSubmit">
-            <div class="flex items-center justify-center flex-col gap-2">
+          <UForm
+            id="task-form"
+            :schema="taskSchema"
+            :state="state"
+            @submit="handleSubmit"
+          >
+            <div class="flex flex-col gap-3">
               <UFormField name="title" class="w-full">
                 <UInput
                   color="neutral"
@@ -27,63 +39,119 @@
                 />
               </UFormField>
 
-              <UFormField name="dueDate" class="w-full">
-                <UInput
-                  type="date"
-                  class="w-full"
-                  color="neutral"
-                  variant="subtle"
-                  v-model="state.dueDate"
-                  :min="today"
-                />
-              </UFormField>
+              <div class="flex flex-col sm:flex-row gap-3">
+                <UFormField name="dueDate" class="w-full">
+                  <UInput
+                    type="date"
+                    class="w-full"
+                    color="neutral"
+                    variant="subtle"
+                    v-model="state.dueDate"
+                    :min="today"
+                  />
+                </UFormField>
 
-              <UFormField name="priority" class="w-full">
-                <USelect
-                  color="neutral"
-                  variant="subtle"
-                  class="w-full"
-                  placeholder="Выберите приоритет задачи"
-                  :items="['low', 'medium', 'high']"
-                  v-model="state.priority"
-                />
-              </UFormField>
+                <UFormField name="priority" class="w-full">
+                  <USelect
+                    color="neutral"
+                    variant="subtle"
+                    class="w-full"
+                    placeholder="Приоритет"
+                    :items="['low', 'medium', 'high']"
+                    v-model="state.priority"
+                  />
+                </UFormField>
+              </div>
             </div>
           </UForm>
         </template>
+
         <template #footer>
-          <UButton label="Отмена" color="neutral" variant="subtle" @click="isModalOpen = false" />
+          <UButton
+            label="Отмена"
+            color="neutral"
+            variant="subtle"
+            @click="isModalOpen = false"
+          />
           <UButton
             form="task-form"
             type="submit"
-            :label="isEditingMode ? 'Сохранить изменения' : 'Создать задачу'"
+            :label="isEditingMode ? 'Сохранить' : 'Создать задачу'"
             loading-auto
           />
         </template>
       </UModal>
+
+      <UModal v-model:open="isDeleteModalOpen" title="Удалить задачу">
+        <template #body>
+          <p class="text-sm text-gray-400">
+            Вы действительно хотите удалить задачу
+            <span class="font-semibold text-gray-800 dark:text-gray-100">
+              "{{ taskToDelete?.title }}"
+            </span>?
+            Это действие нельзя отменить.
+          </p>
+        </template>
+        <template #footer>
+          <UButton
+            label="Отмена"
+            color="neutral"
+            variant="subtle"
+            @click="isDeleteModalOpen = false"
+          />
+          <UButton
+            label="Удалить"
+            color="error"
+            loading-auto
+            @click="deleteTask"
+          />
+        </template>
+      </UModal>
     </div>
-    <USeparator type="dashed" class="mb-2" />
-    <div class="flex items-center justify-between mt-2 mb-2">
-      <UTabs color="neutral" variant="link" :content="false" :items="tabsItems" v-model="selectedTab" />
+
+    <USeparator type="dashed" class="mb-3" />
+
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-2 mb-3">
+      <div>
+        <UTabs
+          color="neutral"
+          variant="link"
+          :content="false"
+          :items="tabsItems"
+          v-model="selectedTab"
+          class="min-w-max"
+        />
+      </div>
+
       <USelect
         color="neutral"
         variant="subtle"
         :items="['По приоритету', 'По дедлайну']"
-        class="min-w-35"
+        class="w-full sm:w-40"
         placeholder="Сортировка"
         v-model="sortBy"
       />
     </div>
-    <div v-if="pending">
-      <div v-for="i in 10" :key="i">
-        <USkeleton class="w-full h-8 mb-2" />
-      </div>
+
+    <div v-if="pending" class="space-y-2">
+      <USkeleton v-for="i in 6" :key="i" class="w-full h-10 rounded-md" />
     </div>
-    <div v-else>
-      <UTable ref="table" :columns="columns" :data="filteredTasks" rowKey="id">
+
+    <div v-else class="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+      <UTable
+        ref="table"
+        :columns="columns"
+        :data="filteredTasks"
+        rowKey="id"
+        class="min-w-105"
+      >
         <template #action-cell="{ row }">
           <UDropdownMenu :items="getDropdownActions(row.original)">
-            <UButton icon="i-lucide-ellipsis-vertical" color="neutral" variant="ghost" />
+            <UButton
+              icon="i-lucide-ellipsis-vertical"
+              color="neutral"
+              variant="ghost"
+            />
           </UDropdownMenu>
         </template>
       </UTable>
@@ -106,12 +174,14 @@ const taskSchema = z.object({
 
 type TaskForm = z.infer<typeof taskSchema>
 
-const editingId = ref<string | null>(null)
-const isModalOpen = ref(false)
-const selectedTab = ref('all')
-const sortBy = ref<string | undefined>(undefined)
-const table = useTemplateRef('table')
-const toast = useToast()
+const editingId = ref<string | null>(null);
+const isModalOpen = ref(false);
+const isDeleteModalOpen = ref(false);
+const taskToDelete = ref<Task | null>(null);
+const selectedTab = ref('all');
+const sortBy = ref<string | undefined>(undefined);
+const table = useTemplateRef('table');
+const toast = useToast();
 
 const state = reactive<Partial<TaskForm>>({
   title: '',
@@ -166,13 +236,29 @@ const toggleComplete = async (task: Task) => {
   }
 }
 
-const deleteTask = async (id: string) => {
+const confirmDelete = (task: Task) => {
+  taskToDelete.value = task
+  isDeleteModalOpen.value = true
+}
+
+const deleteTask = async () => {
+  if (!taskToDelete.value){
+    return
+  }
   try {
-    await $api(`/tasks/${id}`, { method: 'DELETE' })
+    await $api(`/tasks/${taskToDelete.value.id}`, { method: 'DELETE' })
     toast.add({ title: 'Задача удалена!', color: 'success' })
     await refreshNuxtData('tasks-list')
   } catch (err) {
     console.error(err)
+    toast.add({
+      title: 'Ошибка',
+      description: 'Не удалось удалить задачу',
+      color: 'error',
+    })
+  } finally {
+    isDeleteModalOpen.value = false
+    taskToDelete.value = null
   }
 }
 
@@ -223,7 +309,7 @@ const columns: TableColumn<Task>[] = [
     cell: ({ row }) =>
       h(
         'span',
-        { class: row.original.isCompleted ? 'line-through text-gray-400' : '' },
+        { class: `block max-w-xs truncate ${row.original.isCompleted ? 'line-through text-gray-400' : ''}` },
         row.getValue('title'),
       ),
   },
@@ -245,7 +331,7 @@ const columns: TableColumn<Task>[] = [
 const getDropdownActions = (task: Task): DropdownMenuItem[][] => [
   [
     { label: 'Edit', icon: 'i-lucide-edit', onSelect: () => openEditModal(task) },
-    { label: 'Delete', icon: 'i-lucide-trash', color: 'error', onSelect: () => deleteTask(task.id) },
+    { label: 'Delete', icon: 'i-lucide-trash', color: 'error', onSelect: () => confirmDelete(task) },
   ],
 ]
 
